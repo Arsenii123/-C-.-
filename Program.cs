@@ -1,20 +1,27 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Specialized;
+using System.Text.Json.Serialization;
 
 namespace Homework2
 {
     class Student
     {
-         string? name;
-         string? secondname;
-         string? father;
-         List<int> birthday=new List<int>();
+        string? name;
+        string? secondname;
+        string? father;
+        List<int> birthday = new List<int>();
         List<string> adress = new List<string>();
-        private List<int> exams = new List<int>();
+        List<int> exams = new List<int>();
         List<int> homeworks = new List<int>();
         List<int> lessons = new List<int>();
         public static int count;
         int number;
-        public  void SetName(string name)
+        int average;
+        public string Name { get; set; }
+        public string Secondname { get; set; }
+        public int Age { get; set; }
+        public int Averagemark { get; set; }
+        public void SetName(string name)
         {
             this.name = name;
         }
@@ -28,7 +35,7 @@ namespace Homework2
         }
         public void SetDay(int day)
         {
-            birthday.Insert(day,'1');
+            birthday.Insert(day, '1');
         }
         public void SetMonth(int month)
         {
@@ -38,10 +45,10 @@ namespace Homework2
         {
             birthday.Insert(year, '3');
         }
-        public void SetAdress(string street,string house)
+        public void SetAdress(string street, string house)
         {
             adress.Add(street);
-            adress.Add( house);
+            adress.Add(house);
         }
         public void SetNumber(int number)
         {
@@ -59,7 +66,7 @@ namespace Homework2
         {
             lessons.Add(lesson);
         }
-        public  string? GetName()
+        public string? GetName()
         {
             return name;
         }
@@ -73,23 +80,23 @@ namespace Homework2
         }
         public void GetAdress()
         {
-    
-            foreach(string number in adress)
+
+            foreach (string number in adress)
             {
                 Console.WriteLine(number);
             }
-           
+
         }
         public int GetBirthday()
         {
 
-            foreach (int  number in birthday)
+            foreach (int number in birthday)
             {
                 return number;
             }
             return 0;
         }
-        public void  GetExam()
+        public void GetExam()
         {
 
             foreach (int exam in exams)
@@ -104,9 +111,9 @@ namespace Homework2
             {
                 Console.WriteLine(homework);
             }
-          
+
         }
-        public void  GetLessons()
+        public void GetLessons()
         {
 
             foreach (int lesson in lessons)
@@ -120,8 +127,8 @@ namespace Homework2
         }
         public bool Bad_Exams()
         {
-            bool chek =false;
-            foreach(int exam in exams)
+            bool chek = false;
+            foreach (int exam in exams)
             {
                 if (exam <= 5)
                 {
@@ -130,9 +137,9 @@ namespace Homework2
 
             }
             return chek;
-            
+
         }
-        public Student(string? name,string? secondname,string? father,int day,int month,int year,string street,string home,int lesson,int exam,int homework,int number)
+        public Student(string? name, string? secondname, string? father, int day, int month, int year, string street, string home, int lesson, int exam, int homework, int number)
         {
             SetName(name);
             SetSecondname(secondname);
@@ -140,15 +147,20 @@ namespace Homework2
             SetDay(day);
             SetMonth(month);
             SetYear(year);
-            SetAdress(street,home);
+            SetAdress(street, home);
             SetLesson(lesson);
             SetExam(exam);
             SetHomework(homework);
             SetNumber(number);
+            Name = name;
+            Secondname = secondname;
+            Age = 2025 - year;
+            Averagemark = average;
+
         }
         public Student(int count_lesson, int count_homework, int count_exam, int lesson, int exam, int homework)
         {
-            for (int i = 0; i < count_lesson;i++) 
+            for (int i = 0; i < count_lesson; i++)
             {
                 SetLesson(lesson);
             }
@@ -165,6 +177,68 @@ namespace Homework2
         {
             count++;
         }
+        //Homework 6 overload
+        public override bool Equals(object? someStranger)
+        {
+            if (someStranger is not Student whoIsIt)
+            {
+                Console.WriteLine("це не student або посилання є null");
+                return false;
+            }
+
+ 
+            return whoIsIt.average == average;
+        }
+        public static bool operator ==(Student left, Student right)
+        {
+
+            if (left is null)
+            {
+                return right is null;
+            }
+
+            if (right is null)
+            {
+                return false;
+            }
+
+            return left.Equals(right);
+        }
+        public static bool operator !=(Student left, Student right)
+        {
+            return !(left == right);
+        }
+        public void  SetMiddle()
+        {
+            int midhomework=0;
+            int midlesson=0;
+            int midexam=0;
+            foreach(int mid in lessons)
+            {
+                midlesson = midlesson + mid;
+            }
+            midlesson = midlesson / lessons.Count;
+            foreach (int mid in exams)
+            {
+                midexam = midexam + mid;
+            }
+            midexam = midexam / exams.Count;
+            foreach (int mid in homeworks)
+            {
+                midhomework = midhomework + mid;
+            }
+            midhomework = midhomework / homeworks.Count;
+            average = (midhomework + midexam + midlesson) / 3;
+        }
+        //Homework 6 Overload
+        public static bool operator true(Student s)
+        {
+            return s.average >= 7;
+        }
+        public static bool operator false(Student s)
+        {
+            return s.average < 7; 
+        }
 
     }
     class Group:Student 
@@ -174,6 +248,9 @@ namespace Homework2
         string? type = "";
         int number_of_course = 0;
         int fails = 0;
+        public int Count { get; set; }
+        public string Type { get; set; }
+        public int Number { get; set; }
         public Group(List<string> students)
         {
             foreach (string i in this.students)
@@ -211,6 +288,9 @@ namespace Homework2
             Console.WriteLine("Placement:");
             int number_of_course = Console.Read();
             this.number_of_course = number_of_course;
+            Count = students.Count;
+            Type = type;
+            Number = number_of_course;
 
 
         }
@@ -255,6 +335,160 @@ namespace Homework2
                 fails++;
             }
         }
+        public override bool Equals(object? someStranger)
+        {
+            if (someStranger is not Group whoIsIt)
+            {
+                Console.WriteLine("це не student або посилання є null");
+                return false;
+            }
+
+
+            return whoIsIt.students == students;
+        }
+        public static bool operator ==(Group left, Group  right)
+        {
+
+            if (left is null)
+            {
+                return right is null;
+            }
+
+            if (right is null)
+            {
+                return false;
+            }
+
+            return left.Equals(right);
+        }
+        public static bool operator !=(Group left, Group right)
+        {
+            return !(left == right);
+        }
+        public int  this[string name]
+        {
+            get
+            {
+                return students.IndexOf(name);
+            }
+            set
+            {
+                students.Sort();
+            }
+        }
+    }
+    //Homework 5 Exeptions
+    class StudentManagmentExeption:ApplicationException // ApplicationException — базовий клас для користувацьких винятків
+    {      
+            public StudentManagmentExeption() { }
+            public StudentManagmentExeption(string message) : base(message) { } 
+    }
+    class InvalidGradeExeption : StudentManagmentExeption
+    {
+        private string GradeDescription = "";
+
+        public InvalidGradeExeption() { }
+        public InvalidGradeExeption(string message) : base(message) { }
+
+        public string GetGrade() 
+        {
+            return GradeDescription;
+        }
+
+        public void SetGrade(string value)
+        {
+            GradeDescription = value;
+        }
+    }
+    class StudentNotFoundExeptcion : StudentManagmentExeption
+    {
+        private string StudentDescription = "";
+
+        public StudentNotFoundExeptcion() { }
+        public StudentNotFoundExeptcion(string message) : base(message) { }
+
+        public string GetStudent()
+        {
+            return StudentDescription;
+        }
+
+        public void SetStudent(string value)
+        {
+            StudentDescription = value;
+        }
+    }
+    class InvalidStudentDataExpetion : StudentManagmentExeption
+    {
+        private string DataDescription = "";
+
+        public InvalidStudentDataExpetion() { }
+        public InvalidStudentDataExpetion(string message) : base(message) { }
+
+        public string GetData()
+        {
+            return DataDescription;
+        }
+
+        public void SetData(string value)
+        {
+            DataDescription = value;
+        }
+    }
+    class GroupManagmentExeption : ApplicationException // ApplicationException — базовий клас для користувацьких винятків
+    {
+        public GroupManagmentExeption() { }
+        public GroupManagmentExeption(string message) : base(message) { }
+    }
+    class GroupFullExeption : GroupManagmentExeption
+    {
+        private string FullDescription = "";
+
+        public GroupFullExeption() { }
+        public GroupFullExeption(string message) : base(message) { }
+
+        public string GetGrade()
+        {
+            return FullDescription;
+        }
+
+        public void SetGrade(string value)
+        {
+            FullDescription = value;
+        }
+    }
+    class InvalidDataExeptcion : GroupManagmentExeption
+    {
+        private string GroupDataDescription = "";
+
+        public InvalidDataExeptcion() { }
+        public InvalidDataExeptcion(string message) : base(message) { }
+
+        public string GetGroupData()
+        {
+            return GroupDataDescription;
+        }
+
+        public void SetGroupData(string value)
+        {
+            GroupDataDescription = value;
+        }
+    }
+    class FailedTransferExpetion : GroupManagmentExeption
+    {
+        private string TransferDescription = "";
+
+        public FailedTransferExpetion() { }
+        public FailedTransferExpetion(string message) : base(message) { }
+
+        public string GetData()
+        {
+            return TransferDescription;
+        }
+
+        public void SetData(string value)
+        {
+            TransferDescription = value;
+        }
     }
     internal class Program
     {
@@ -262,19 +496,29 @@ namespace Homework2
         {
             //Student
             //Console.WriteLine("Hello, World!");
-            //Student student = new Student(3, 2, 1, 12, 11, 1);
+            Student student = new Student(3, 2, 1, 12, 11, 1);
+            Student student2 = new Student(3, 5, 1, 12, 11, 8);
+            student.SetMiddle();
+            student2.SetMiddle();
+            Console.WriteLine(student==student2);//Hom6
             //Console.WriteLine(student.GetExam());
             //Console.WriteLine(student.GetLessons());
             //Console.WriteLine(student.GetHomework());
-            //Group
-
+            InvalidGradeExeption error = new InvalidGradeExeption();
+            error.SetGrade("Grade must be higher that null");
+            Console.WriteLine($"error:{error.GetGrade()}");
             Group group= new Group();
             group.Print();
             Group g2 = new Group();
             Group g3 = new Group(group, g2);
             g2.Print();
             g2.Add_Student( "Arsenii");
+            Console.WriteLine(g2["Arsenii"]);//Hom 7
             g2.Another_Group("Arsenii", group);
+            Console.WriteLine(student.Name);//Hom7
+            Console.WriteLine(group.Count);// Hom7
+            
+
 
         }
     }
