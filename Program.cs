@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Text.Json.Serialization;
-
+using System.Threading;
+using System.Collections;
+using System.Text;
 namespace Homework2
 {
     class Student
@@ -125,7 +127,7 @@ namespace Homework2
         {
             return number;
         }
-        public bool Bad_Exams()
+        public bool BadExams()
         {
             bool chek = false;
             foreach (int exam in exams)
@@ -138,6 +140,41 @@ namespace Homework2
             }
             return chek;
 
+        }
+       public  class AverageGradeComparer : IComparer<Student?>
+        {
+            public int Compare(Student? x, Student? y)
+            {
+                if(x==null || y==null) {
+                    throw new ArgumentNullException("надати нормальні об'єкти, а не порожні посилання");
+                }
+                else  if (x.Averagemark.CompareTo(y.Averagemark) == 0)
+                {
+                     new Student.FullNameComparer();
+                }
+             
+                
+                  return x.Averagemark.CompareTo(y.Averagemark);
+                
+            }
+        }
+        public class FullNameComparer : IComparer<Student>
+        {
+            public int Compare(Student? x, Student? y)
+            {
+                if (x == null || y == null)
+                {
+                    throw new ArgumentNullException("надати нормальні об'єкти, а не порожні посилання");
+                }
+                else if (string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    new Student.AverageGradeComparer();
+                }
+             
+                
+                 return string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+                
+            }
         }
         public Student(string? name, string? secondname, string? father, int day, int month, int year, string street, string home, int lesson, int exam, int homework, int number)
         {
@@ -156,6 +193,7 @@ namespace Homework2
             Secondname = secondname;
             Age = 2025 - year;
             Averagemark = average;
+            count++;
 
         }
         public Student(int count_lesson, int count_homework, int count_exam, int lesson, int exam, int homework)
@@ -172,6 +210,7 @@ namespace Homework2
             {
                 SetExam(exam);
             }
+            count++;
         }
         public Student() : this("", "", "", 0, 0, 0, "", "", 0, 0, 0, 0)
         {
@@ -241,6 +280,7 @@ namespace Homework2
         }
 
     }
+
     class Group:Student 
     {
         List<string> students=new List <string>();
@@ -319,18 +359,18 @@ namespace Homework2
             }
           
         }
-        public void Add_Student(string student)
+        public void AddStudent(string student)
         {
             students.Add(student);
         }
-        public void Another_Group(string student,Group p_new)
+        public void AnotherGroup(string student,Group p_new)
         {
             students.Remove(student);
             p_new.students.Add(student);
         }
-        public void Count_Bad(Student p)
+        public void CountBad(Student p)
         {
-            if (p.Bad_Exams() == true)
+            if (p.BadExams() == true)
             {
                 fails++;
             }
@@ -490,6 +530,79 @@ namespace Homework2
             TransferDescription = value;
         }
     }
+    class GroupCollection : IEnumerable<Student?> // явно реалізуємо інтерфейс IEnumerable<T>
+    {
+        // зазвичай у такому класі присутнє інкапсульоване поле-колекція з будь-якою кількістю елементів та будь-якими типами
+        private Student[] student = new Student[3];
+        // List<Monster> monsters = new List<Monster>();
+
+        public GroupCollection()
+        {
+            student[0] = new Student();
+            student[1] = new Student();
+            student[2] = new Student();
+        }
+
+        // при бажанні, можна буде дописати методи Add, Remove, Clear, Count, Search ...
+
+        // у класі-колекції повинен бути публічний метод GetEnumerator без параметрів
+        public IEnumerator<Student?> GetEnumerator()
+        {
+            // з цього методу потрібно повернути посилання на об'єкт-перелічувач колекції
+            return new StudentEnumerator(student); // зазвичай у конструктор при створенні об'єкта-перелічувача відправляється посилання на колекцію даних
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); // неузагальнений варіант (для повної сумісності з legacy-кодом, наприклад, методами, які приймають IEnumerable без <T>, потрібно реалізувати обидві версії)
+    }
+
+    // окремий клас, який описує алгоритм перелічення елементів
+    class StudentEnumerator : IEnumerator<Student?>
+    {
+        // ще одне посилання на колекцію (але вже для перелічувача)
+        private Student[]? student = null;
+
+        // явний конструктор для отримання посилання на колекцію
+        public StudentEnumerator(Student[]? student)
+        {
+            this.student = student; // запам'ятали посилання на колекцію
+            index = -1; // початковий стан перед першим викликом MoveNext
+        }
+
+        // у класі-перелічувачі обов'язково повинно бути свойство Current (посилання на наступний необроблений об'єкт)
+        public Student? Current
+        {
+            get;
+            private set; // зазвичай секція set закрита (бо для стандартних колекцій через цю властивість не можна змінювати значення елементів колекції)
+            // класично, foreach - це цикл на перегляд (читання) елементів
+        }
+
+        object? IEnumerator.Current => Current;
+
+        // у класі можуть бути додаткові поля (щоб не загубитися в процесі огляду колекції)
+        private int index = 0;
+
+        // у класі-перелічувачі обов'язково повинен бути метод MoveNext
+        // він перевіряє, чи є взагалі елементи в колекції, якщо їх спочатку немає - повертає false (умова виходу з foreach)
+        // також перевіряє, чи залишилися необроблені елементи - якщо все переглянули - повертається false (у колекції більше нічого робити)
+        // якщо необроблені елементи ще є - виставляється посилання (через Current) на наступний елемент, і повертається true
+        public bool MoveNext()
+        {
+            if (student?.Length == 0 || index >= student?.Length - 1)
+                return false;
+
+            Current = student?[++index];
+            return true;
+        }
+
+        // скидає перелічувач на початок
+        public void Reset()
+        {
+            index = -1;
+        }
+
+        // звільняє ресурси (для простоти прикладу - порожній)
+        public void Dispose() { }
+    }
     internal class Program
     {
         static void Main(string[] args)
@@ -512,12 +625,25 @@ namespace Homework2
             Group g2 = new Group();
             Group g3 = new Group(group, g2);
             g2.Print();
-            g2.Add_Student( "Arsenii");
+            g2.AddStudent( "Arsenii");
             Console.WriteLine(g2["Arsenii"]);//Hom 7
-            g2.Another_Group("Arsenii", group);
+            g2.AnotherGroup("Arsenii", group);
             Console.WriteLine(student.Name);//Hom7
             Console.WriteLine(group.Count);// Hom7
-            
+            Student[] crowd = [
+                new Student(),
+                new Student(),
+                new Student()
+             ];
+            Array.Sort(crowd, new Student.AverageGradeComparer());
+            for (var tmp = (StudentEnumerator?)crowd.GetEnumerator(); tmp.MoveNext();)
+            {
+                var item = tmp?.Current;
+                Console.Write(item + " ");
+            }
+
+            Console.WriteLine();
+
 
 
         }
