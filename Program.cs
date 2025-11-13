@@ -4,8 +4,12 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Collections;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml.Linq;
 namespace Homework2
 {
+    delegate bool StudentFilter(Student chelovek);
+    delegate bool StudentsFilter(Student chelovek,Student p);
     class Student
     {
         string? name;
@@ -80,13 +84,14 @@ namespace Homework2
         {
             return father;
         }
-        public void GetAdress()
+        public int GetExamMark(int index)
+        {
+            return exams[index];
+        }
+        public List<string> GetAdress()
         {
 
-            foreach (string number in adress)
-            {
-                Console.WriteLine(number);
-            }
+            return adress;
 
         }
         public int GetBirthday()
@@ -98,30 +103,21 @@ namespace Homework2
             }
             return 0;
         }
-        public void GetExam()
+        public List<int>  GetExam()
         {
-
-            foreach (int exam in exams)
-            {
-                Console.WriteLine(exam);
-            }
-        }
-        public void GetHomework()
-        {
-
-            foreach (int homework in homeworks)
-            {
-                Console.WriteLine(homework);
-            }
+            return exams  ;
 
         }
-        public void GetLessons()
+        public List<int> GetHomework()
         {
 
-            foreach (int lesson in lessons)
-            {
-                Console.WriteLine(lesson);
-            }
+            return homeworks;
+
+        }
+        public List<int> GetLessons()
+        {
+
+            return lessons;
         }
         public int GetNumber()
         {
@@ -158,6 +154,7 @@ namespace Homework2
                 
             }
         }
+
         public class FullNameComparer : IComparer<Student>
         {
             public int Compare(Student? x, Student? y)
@@ -281,7 +278,7 @@ namespace Homework2
 
     }
 
-    class Group:Student 
+    class Group 
     {
         List<string> students=new List <string>();
         string? group = "";
@@ -603,6 +600,7 @@ namespace Homework2
         // звільняє ресурси (для простоти прикладу - порожній)
         public void Dispose() { }
     }
+ 
     internal class Program
     {
         static void Main(string[] args)
@@ -641,9 +639,81 @@ namespace Homework2
                 var item = tmp?.Current;
                 Console.Write(item + " ");
             }
-
+            Student[] clever = Filter(crowd, p => p.Averagemark > 10,p2=> p2.Averagemark==10);
+            foreach (var person in clever) Console.WriteLine(person);
+            Student[] name = Filter(crowd, p => p.Name.StartsWith("B"), p2 => p2.Name.StartsWith("Б"));
+            foreach (var person in clever) Console.WriteLine(person);
+            List<int> fail = student.GetExam();
+            int i = 0;
+            Student[] exam= Filter2(crowd, p => p.GetExamMark(i) == fail[0]); 
+            foreach (var mark in fail) {
+                i++;
+               exam = Filter2(crowd, p => p.GetExamMark(i) == mark);
+            }
+            foreach (var person in exam) Console.WriteLine(person);
+            Student[] homework = Filter2(crowd, p => p.GetHomework()==null);
+            foreach (var person in homework) Console.WriteLine(person);
+            Array.Sort(crowd, new Student.AverageGradeComparer());
+            Student[] bestaverege = Filter2(crowd, p => p.Averagemark == crowd[0].Averagemark);
+            foreach (var person in bestaverege) Console.WriteLine(person);
+            Student[] longname = Filter(crowd, p => p.Name.Length >5,p2 => p2.Name.Length ==5 );
+            foreach (var person in longname) Console.WriteLine(person);
+            Student[] marks = Filter3(crowd, p => p.GetExam() == crowd[0].GetExam(), p2 => p2.GetHomework() == crowd[0].GetHomework(), p3 => p3.GetLessons() == crowd[0].GetLessons());
+            for(int a=0;a<crowd.Length;a++)
+            {
+                marks = Filter3(crowd, p => p.GetExam() == crowd[a].GetExam(), p2 => p2.GetHomework() == crowd[a].GetHomework(), p3 => p3.GetLessons() == crowd[a].GetLessons());
+            }
+            foreach (var person in marks) Console.WriteLine(person);
+            Student[] istwo = Filter3(crowd, p => p.GetExam().Count%2 ==0 , p2 => p2.GetHomework().Count % 2 == 0, p3 => p3.GetLessons().Count % 2 == 0);
             Console.WriteLine();
 
+
+
+
+        }
+        static Student[] Filter(Student[] student, StudentFilter condition, StudentFilter condition2)
+        {
+            var result = new List<Student>();
+            foreach (var p in student)
+            {
+                if (condition(p) || condition2(p))
+                {
+                    result.Add(p);
+                }
+            }
+            return result.ToArray();
+
+
+        }
+        static Student[] Filter2(Student[] student, StudentFilter condition)
+        {
+            var result = new List<Student>();
+            foreach (var p in student)
+            {
+                if (condition(p))
+                {
+                    result.Add(p);
+                }
+            }
+            return result.ToArray();
+
+
+        }
+        static Student[] Filter3(Student[] student, StudentFilter condition, StudentFilter condition2, StudentFilter condition3)
+        {
+            var result = new List<Student>();
+            foreach (var p in student)
+            {
+
+                
+                    if (condition(p) && condition2(p) && condition3(p))
+                    {
+                        result.Add(p);
+                    }
+                
+
+            }
+            return result.ToArray();
 
 
         }
