@@ -6,12 +6,116 @@ using System.Collections;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Xml.Linq;
+using System.Reflection;
+using static Homework2.Student;
+using System.Security.Cryptography.X509Certificates;
 namespace Homework2
 {
     delegate bool StudentFilter(Student chelovek);
     delegate bool StudentsFilter(Student chelovek,Student p);
     class Student
     {
+        public delegate void MyEventHandler();
+        private MyEventHandler? CheckTime;
+        private MyEventHandler? Automat;
+        private MyEventHandler? Awarded;
+
+        public event MyEventHandler? Time
+        {
+            add
+            {
+                Console.WriteLine("Обробник події додано");
+                MyEventHandler? currentHandler;
+                MyEventHandler? newHandler;
+                do
+                {
+                    currentHandler = CheckTime;
+                    newHandler = (MyEventHandler?)Delegate.Combine(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref CheckTime, newHandler, currentHandler) != currentHandler);
+            }
+            remove
+            {
+                Console.WriteLine("Обробник події прибрано");
+                MyEventHandler? currentHandler;
+                MyEventHandler? newHandler;
+                do
+                {
+                    currentHandler = CheckTime;
+                    newHandler = (MyEventHandler?)Delegate.Remove(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref CheckTime, newHandler, currentHandler) != currentHandler);
+            }
+        }
+        public event MyEventHandler? Auto
+        {
+            add
+            {
+                Console.WriteLine("Обробник події додано");
+                MyEventHandler? currentHandler;
+                MyEventHandler? newHandler;
+                do
+                {
+                    currentHandler = Automat;
+                    newHandler = (MyEventHandler?)Delegate.Combine(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Automat, newHandler, currentHandler) != currentHandler);
+            }
+            remove
+            {
+                Console.WriteLine("Обробник події прибрано");
+                MyEventHandler? currentHandler;
+                MyEventHandler? newHandler;
+                do
+                {
+                    currentHandler = Automat;
+                    newHandler = (MyEventHandler?)Delegate.Remove(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Automat, newHandler, currentHandler) != currentHandler);
+            }
+        }
+        public event MyEventHandler? Award
+        {
+            add
+            {
+                Console.WriteLine("Обробник події додано");
+                MyEventHandler? currentHandler;
+                MyEventHandler? newHandler;
+                do
+                {
+                    currentHandler = Awarded;
+                    newHandler = (MyEventHandler?)Delegate.Combine(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Awarded, newHandler, currentHandler) != currentHandler);
+            }
+            remove
+            {
+                Console.WriteLine("Обробник події прибрано");
+                MyEventHandler? currentHandler;
+                MyEventHandler? newHandler;
+                do
+                {
+                    currentHandler = Awarded;
+                    newHandler = (MyEventHandler?)Delegate.Remove(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Awarded, newHandler, currentHandler) != currentHandler);
+            }
+        }
+        public void StartEventTime()
+        {
+            if (CheckTime != null)
+               CheckTime();
+        }
+        public void StartEventAutomat()
+        {
+            if (Automat != null)
+                Automat();
+        }
+        public void StartEventAward()
+        {
+            if (Awarded != null)
+                Awarded();
+        }
         string? name;
         string? secondname;
         string? father;
@@ -88,6 +192,10 @@ namespace Homework2
         {
             return exams[index];
         }
+        public int GetLessonMark(int index)
+        {
+            return lessons[index];
+        }
         public List<string> GetAdress()
         {
 
@@ -136,6 +244,48 @@ namespace Homework2
             }
             return chek;
 
+        }
+       public  void TimeOf()
+        {
+            TimeOnly now = TimeOnly.FromDateTime(DateTime.Now);
+            TimeOnly lesson = new TimeOnly(16, 45);
+            if (now > lesson)
+            {
+                Console.WriteLine($" YOU'RE LATE FOR {now-lesson} !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            else if (now == lesson)
+            {
+                Console.WriteLine("Lesson started");
+            }
+            else
+            {
+                Console.WriteLine($"Lesson star's in {now-lesson} ");
+            }
+
+           
+
+        }
+        public void AutoRecived()
+        {
+            int result = 0;
+            foreach(int marks in exams)
+            {
+                if (marks == 12)
+                {
+                    result++;
+                }
+            }
+            if (result == exams.Count)
+            {
+                Console.WriteLine("Good job!");
+            }
+        }
+        public void Stipendia()
+        {
+            if (average >= 10)
+            {
+                Console.WriteLine("You have a 'salary' ");
+            }
         }
        public  class AverageGradeComparer : IComparer<Student?>
         {
@@ -281,6 +431,7 @@ namespace Homework2
     class Group 
     {
         List<string> students=new List <string>();
+        List<Student> students2 = new List<Student>();
         string? group = "";
         string? type = "";
         int number_of_course = 0;
@@ -288,6 +439,74 @@ namespace Homework2
         public int Count { get; set; }
         public string Type { get; set; }
         public int Number { get; set; }
+        public delegate void MyEventGroup();
+        private MyEventGroup? Party;
+        private MyEventGroup? Session;
+
+        public event MyEventHandler? GroupParty
+        {
+            add
+            {
+                Console.WriteLine("Обробник події додано");
+                MyEventGroup? currentHandler;
+                MyEventGroup? newHandler;
+                do
+                {
+                    currentHandler = Party;
+                    newHandler = (MyEventGroup?)Delegate.Combine(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Party, newHandler, currentHandler) != currentHandler);
+            }
+            remove
+            {
+                Console.WriteLine("Обробник події прибрано");
+                MyEventGroup? currentHandler;
+                MyEventGroup? newHandler;
+                do
+                {
+                    currentHandler = Party;
+                    newHandler = (MyEventGroup?)Delegate.Remove(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Party, newHandler, currentHandler) != currentHandler);
+            }
+        }
+        public event MyEventGroup? Sessionpass
+        {
+            add
+            {
+                Console.WriteLine("Обробник події додано");
+                MyEventGroup? currentHandler;
+                MyEventGroup? newHandler;
+                do
+                {
+                    currentHandler = Session;
+                    newHandler = (MyEventGroup?)Delegate.Combine(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Session, newHandler, currentHandler) != currentHandler);
+            }
+            remove
+            {
+                Console.WriteLine("Обробник події прибрано");
+                MyEventGroup? currentHandler;
+                MyEventGroup? newHandler;
+                do
+                {
+                    currentHandler = Session;
+                    newHandler = (MyEventGroup?)Delegate.Remove(currentHandler, value);
+                }
+                while (Interlocked.CompareExchange(ref Session, newHandler, currentHandler) != currentHandler);
+            }
+        }
+        public void StartPartyTime()
+        {
+            if (Party != null)
+                Party();
+        }
+        public void StartEventPass()
+        {
+            if (Session != null)
+                Session();
+        }
         public Group(List<string> students)
         {
             foreach (string i in this.students)
@@ -304,7 +523,14 @@ namespace Homework2
             int number_of_course = Console.Read();
             this.number_of_course = number_of_course;
         }
-       public  Group()
+        public Group(Student[] students)
+        {
+            for(int i = 0; i < students.Count(); i++)
+            {
+                students2[i] = students[i];
+            }
+        }
+        public  Group()
         {
 
             Console.WriteLine("How many students?");
@@ -371,6 +597,45 @@ namespace Homework2
             {
                 fails++;
             }
+        }
+        public void Celebrate(){
+            int goodjob = 0;
+          for(int i=0; i < students2.Count(); i++)
+            {
+                if (students2[i].GetExamMark(0) == 12)
+                {
+                    goodjob++;
+                }
+            }
+            if (students2.Count() == goodjob)
+            {
+                Console.WriteLine("WE HAVE PARTY");
+            }
+            else
+            {
+                Console.WriteLine("We are loser`s");
+            }
+
+            }
+        public void Passed()
+        {
+            int goodjob = 0;
+            for (int i = 0; i < students2.Count(); i++)
+            {
+                if (students2[i].GetLessonMark(0) == 12)
+                {
+                    goodjob++;
+                }
+            }
+            if (students2.Count() == goodjob)
+            {
+                Console.WriteLine("WE CAN HAVE A BREAK");
+            }
+            else
+            {
+                Console.WriteLine("We are loser`s");
+            }
+
         }
         public override bool Equals(object? someStranger)
         {
@@ -666,11 +931,35 @@ namespace Homework2
             foreach (var person in marks) Console.WriteLine(person);
             Student[] istwo = Filter3(crowd, p => p.GetExam().Count%2 ==0 , p2 => p2.GetHomework().Count % 2 == 0, p3 => p3.GetLessons().Count % 2 == 0);
             Console.WriteLine();
+            var miss = new Student();
+            miss.Time += student2.TimeOf;
+            var autos = new Student();
+            autos.Auto += student2.AutoRecived;
+            var awarded = new Student();
+            awarded.Award += student2.Stipendia;
+            miss.StartEventTime();
+            autos.StartEventAutomat();
+            awarded.StartEventAward();
+            Group groups = new Group(crowd);
+            var party = new Group();
+            party.GroupParty += groups.Celebrate;
+            var sucsees = new Group();
+            sucsees.Sessionpass += groups.Passed;
+            party.StartPartyTime();
+            sucsees.StartEventPass();
+
+
 
 
 
 
         }
+
+        private static void Miss_Time()
+        {
+            throw new NotImplementedException();
+        }
+
         static Student[] Filter(Student[] student, StudentFilter condition, StudentFilter condition2)
         {
             var result = new List<Student>();
