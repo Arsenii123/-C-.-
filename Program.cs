@@ -9,11 +9,16 @@ using System.Xml.Linq;
 using System.Reflection;
 using static Homework2.Student;
 using System.Security.Cryptography.X509Certificates;
+using static System.Net.Mime.MediaTypeNames;
+using System.IO;
+using System.Xml.Serialization;
+using System.Text.Json;
+using MessagePack;
 namespace Homework2
 {
     delegate bool StudentFilter(Student chelovek);
     delegate bool StudentsFilter(Student chelovek,Student p);
-    class Student
+    public class Student
     {
         public delegate void MyEventHandler();
         private MyEventHandler? CheckTime;
@@ -427,8 +432,8 @@ namespace Homework2
         }
 
     }
-
-    class Group 
+    [Serializable]
+    public class Group 
     {
         List<string> students=new List <string>();
         List<Student> students2 = new List<Student>();
@@ -872,86 +877,128 @@ namespace Homework2
         {
             //Student
             //Console.WriteLine("Hello, World!");
-            Student student = new Student(3, 2, 1, 12, 11, 1);
-            Student student2 = new Student(3, 5, 1, 12, 11, 8);
-            student.SetMiddle();
-            student2.SetMiddle();
-            Console.WriteLine(student==student2);//Hom6
+            //Student student = new Student(3, 2, 1, 12, 11, 1);
+            //Student student2 = new Student(3, 5, 1, 12, 11, 8);
+            //student.SetMiddle();
+            //student2.SetMiddle();
+            //  Console.WriteLine(student==student2);//Hom6
             //Console.WriteLine(student.GetExam());
             //Console.WriteLine(student.GetLessons());
             //Console.WriteLine(student.GetHomework());
-            InvalidGradeExeption error = new InvalidGradeExeption();
-            error.SetGrade("Grade must be higher that null");
-            Console.WriteLine($"error:{error.GetGrade()}");
-            Group group= new Group();
-            group.Print();
-            Group g2 = new Group();
-            Group g3 = new Group(group, g2);
-            g2.Print();
-            g2.AddStudent( "Arsenii");
-            Console.WriteLine(g2["Arsenii"]);//Hom 7
-            g2.AnotherGroup("Arsenii", group);
-            Console.WriteLine(student.Name);//Hom7
-            Console.WriteLine(group.Count);// Hom7
-            Student[] crowd = [
-                new Student(),
-                new Student(),
-                new Student()
-             ];
-            Array.Sort(crowd, new Student.AverageGradeComparer());
-            for (var tmp = (StudentEnumerator?)crowd.GetEnumerator(); tmp.MoveNext();)
-            {
-                var item = tmp?.Current;
-                Console.Write(item + " ");
-            }
-            Student[] clever = Filter(crowd, p => p.Averagemark > 10,p2=> p2.Averagemark==10);
-            foreach (var person in clever) Console.WriteLine(person);
-            Student[] name = Filter(crowd, p => p.Name.StartsWith("B"), p2 => p2.Name.StartsWith("Б"));
-            foreach (var person in clever) Console.WriteLine(person);
-            List<int> fail = student.GetExam();
-            int i = 0;
-            Student[] exam= Filter2(crowd, p => p.GetExamMark(i) == fail[0]); 
-            foreach (var mark in fail) {
-                i++;
-               exam = Filter2(crowd, p => p.GetExamMark(i) == mark);
-            }
-            foreach (var person in exam) Console.WriteLine(person);
-            Student[] homework = Filter2(crowd, p => p.GetHomework()==null);
-            foreach (var person in homework) Console.WriteLine(person);
-            Array.Sort(crowd, new Student.AverageGradeComparer());
-            Student[] bestaverege = Filter2(crowd, p => p.Averagemark == crowd[0].Averagemark);
-            foreach (var person in bestaverege) Console.WriteLine(person);
-            Student[] longname = Filter(crowd, p => p.Name.Length >5,p2 => p2.Name.Length ==5 );
-            foreach (var person in longname) Console.WriteLine(person);
-            Student[] marks = Filter3(crowd, p => p.GetExam() == crowd[0].GetExam(), p2 => p2.GetHomework() == crowd[0].GetHomework(), p3 => p3.GetLessons() == crowd[0].GetLessons());
-            for(int a=0;a<crowd.Length;a++)
-            {
-                marks = Filter3(crowd, p => p.GetExam() == crowd[a].GetExam(), p2 => p2.GetHomework() == crowd[a].GetHomework(), p3 => p3.GetLessons() == crowd[a].GetLessons());
-            }
-            foreach (var person in marks) Console.WriteLine(person);
-            Student[] istwo = Filter3(crowd, p => p.GetExam().Count%2 ==0 , p2 => p2.GetHomework().Count % 2 == 0, p3 => p3.GetLessons().Count % 2 == 0);
-            Console.WriteLine();
-            var miss = new Student();
-            miss.Time += student2.TimeOf;
-            var autos = new Student();
-            autos.Auto += student2.AutoRecived;
-            var awarded = new Student();
-            awarded.Award += student2.Stipendia;
-            miss.StartEventTime();
-            autos.StartEventAutomat();
-            awarded.StartEventAward();
-            Group groups = new Group(crowd);
-            var party = new Group();
-            party.GroupParty += groups.Celebrate;
-            var sucsees = new Group();
-            sucsees.Sessionpass += groups.Passed;
-            party.StartPartyTime();
-            sucsees.StartEventPass();
+            //InvalidGradeExeption error = new InvalidGradeExeption();
+            //error.SetGrade("Grade must be higher that null");
+            //Console.WriteLine($"error:{error.GetGrade()}");
+            //Group group= new Group();
+            //group.Print();
+            //Group g2 = new Group();
+            //Group g3 = new Group(group, g2);
+            //g2.Print();
+            //g2.AddStudent( "Arsenii");
+            //Console.WriteLine(g2["Arsenii"]);//Hom 7
+            //g2.AnotherGroup("Arsenii", group);
+            //Console.WriteLine(student.Name);//Hom7
+            //Console.WriteLine(group.Count);// Hom7
+            //Student[] crowd = [
+            //    new Student("A", "b", "c", 20, 3, 2012, "g", "h", 3, 12,  10, 3),
+            //    new Student(),
+            //    new Student()
+            // ];
+            //Array.Sort(crowd, new Student.AverageGradeComparer());
+            //for (var tmp = (StudentEnumerator?)crowd.GetEnumerator(); tmp.MoveNext();)
+            //{
+            //    var item = tmp?.Current;
+            //    Console.Write(item + " ");
+            //}
+            //Student[] clever = Filter(crowd, p => p.Averagemark > 10,p2=> p2.Averagemark==10);
+            //foreach (var person in clever) Console.WriteLine(person);
+            //Student[] name = Filter(crowd, p => p.Name.StartsWith("B"), p2 => p2.Name.StartsWith("Б"));
+            //foreach (var person in clever) Console.WriteLine(person);
+            //List<int> fail = student.GetExam();
+            //int i = 0;
+            //Student[] exam= Filter2(crowd, p => p.GetExamMark(i) == fail[0]); 
+            //foreach (var mark in fail) {
+            //    i++;
+            //   exam = Filter2(crowd, p => p.GetExamMark(i) == mark);
+            //}
+            //foreach (var person in exam) Console.WriteLine(person);
+            //Student[] homework = Filter2(crowd, p => p.GetHomework()==null);
+            //foreach (var person in homework) Console.WriteLine(person);
+            //Array.Sort(crowd, new Student.AverageGradeComparer());
+            //Student[] bestaverege = Filter2(crowd, p => p.Averagemark == crowd[0].Averagemark);
+            //foreach (var person in bestaverege) Console.WriteLine(person);
+            //Student[] longname = Filter(crowd, p => p.Name.Length >5,p2 => p2.Name.Length ==5 );
+            //foreach (var person in longname) Console.WriteLine(person);
+            //Student[] marks = Filter3(crowd, p => p.GetExam() == crowd[0].GetExam(), p2 => p2.GetHomework() == crowd[0].GetHomework(), p3 => p3.GetLessons() == crowd[0].GetLessons());
+            //for(int a=0;a<crowd.Length;a++)
+            //{
+            //    marks = Filter3(crowd, p => p.GetExam() == crowd[a].GetExam(), p2 => p2.GetHomework() == crowd[a].GetHomework(), p3 => p3.GetLessons() == crowd[a].GetLessons());
+            //}
+            //foreach (var person in marks) Console.WriteLine(person);
+            //Student[] istwo = Filter3(crowd, p => p.GetExam().Count%2 ==0 , p2 => p2.GetHomework().Count % 2 == 0, p3 => p3.GetLessons().Count % 2 == 0);
+            //Console.WriteLine();
+            //var miss = new Student();
+            //miss.Time += student2.TimeOf;
+            //var autos = new Student();
+            //autos.Auto += student2.AutoRecived;
+            //var awarded = new Student();
+            //awarded.Award += student2.Stipendia;
+            //miss.StartEventTime();
+            //autos.StartEventAutomat();
+            //awarded.StartEventAward();
+            //Group groups = new Group(crowd);
+            //var party = new Group();
+            //party.GroupParty += groups.Celebrate;
+            //var sucsees = new Group();
+            //sucsees.Sessionpass += groups.Passed;
+            //party.StartPartyTime();
+            //sucsees.StartEventPass();
 
+            //var wellStudents = crowd
+            //.Where(p => p.Averagemark > 7 && p.GetExam().Count>5 && p.Name.StartsWith("A")) // фільтрує продукти дорожче 100 грн
+            //.OrderByDescending(p => p.Averagemark) // сортує за ціною за спаданням
+            //.GroupBy(p => p.Name) // групує за категорією
+            //.Select(g => new // проектує результат в анонімний тип
+            //{
+            //   Name = g.Key,
+            //   AverageMark = g.Average(p => p.Averagemark), // обчислює середню ціну в групі
+            //   Students = g.ToList() // зберігає список продуктів у групі
+            //});
 
-
-
-
+            //foreach (var s in wellStudents)
+            //{
+            //    Console.WriteLine($"\nName: {s.Name}");
+            //    Console.WriteLine($"AverageMark: {s.AverageMark:F2} ");
+            //    foreach (var prod in s.Students)
+            //    {
+            //        Console.WriteLine($"  - {prod.Name}: {prod.Secondname} грн");
+            //    }
+            //}
+            string filePath = "test.xml";
+            string filePath2 = "test2.xml";
+            Group group=new Group();
+            File.WriteAllBytes("test3.bin", MessagePackSerializer.Serialize(group));
+            Group restoredg = MessagePackSerializer.Deserialize<Group>(File.ReadAllBytes("test3.bin"));
+            Console.WriteLine(restoredg);
+            /////////////////////////////////////////////////////
+            var serializer = new XmlSerializer(typeof(Group));
+            var write = new StreamWriter(filePath);
+            serializer.Serialize(write, group); // !!!
+            write.Close();
+            var read = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            var copy = (Group?)serializer.Deserialize(read); // !!!
+            read.Close();
+            Console.WriteLine(copy.Count);
+            Console.WriteLine(copy.Number);
+            /////////////////////////////////////////
+            var write2 = new FileStream(filePath2, FileMode.Create, FileAccess.Write);
+            JsonSerializer.Serialize(write2, group);
+            write.Close();
+            var read2 = new FileStream(filePath2, FileMode.Open, FileAccess.Read);
+            // завантажує об'єкт, збережений вище, за допомогою deserialize
+            var copy2 = JsonSerializer.Deserialize<Group>(read);
+            read.Close();
+            Console.WriteLine(copy2.Count);
+            Console.WriteLine(copy2.Number);
 
         }
 
